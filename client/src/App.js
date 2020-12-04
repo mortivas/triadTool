@@ -9,8 +9,10 @@ import {
 import 'medium-editor/dist/css/medium-editor.css';
 import 'medium-editor/dist/css/themes/default.css';
 import './App.css';
+import Config from './config';
 
-const client = new W3CWebSocket('ws://127.0.0.1:8000');
+
+const client = new W3CWebSocket(Config.SERVER_URL);
 const expression = new RegExp("^[a-zA-Z][a-zA-Z0-9]*");
 
 const typesDef = {
@@ -35,14 +37,14 @@ class App extends Component {
             bannedDeck: '',
             error: '',
             banSubmitted: false,
-            isUsernameValid: false
+            isUsernameValid: true
         };
     }
 
     handleUsernameChange = (e) => {
         this.setState({
             username: e.target.value
-        })
+        });
         this.state.isUsernameValid = expression.test(e.target.value);
     };
 
@@ -182,7 +184,8 @@ class App extends Component {
                     }}
                        value={this.state.username}
                        onChange={this.handleUsernameChange}
-                       className="form-control"/>
+                       className={this.state.isUsernameValid ? "form-control" : "form-control error-input"}
+                    />
                     <p className="button__desc">If you want to create new conversation, just press this button:</p>
                     <button type="button" onClick={() => this.createConversation()}
                             disabled={!this.state.username || !this.state.isUsernameValid}
