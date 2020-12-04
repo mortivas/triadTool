@@ -46,6 +46,7 @@ const sendLogUpdate = (conversation) => {
             clients[user.userId].sendUTF(JSON.stringify({
                 type: typesDef.UPDATE_LOG_EVENT,
                 data: {
+                    users: conversation.users,
                     log: conversation.log
                 }
             }));

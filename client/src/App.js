@@ -138,6 +138,7 @@ class App extends Component {
                     break;
 
                 case typesDef.UPDATE_LOG_EVENT:
+                    stateToChange.currentUsers = dataFromServer.data.users;
                     stateToChange.log = dataFromServer.data.log;
                     stateToChange.error = '';
 
