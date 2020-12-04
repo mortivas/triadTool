@@ -9,7 +9,7 @@ services:
     restart: always
     command: node index.js
     volumes:
-      - ./:/code
+      - ./server:/code
     network_mode: "host"
 
 
@@ -21,5 +21,5 @@ services:
     command: serve -s build
     restart: always
     volumes:
-      - ./:/code
+      - ./client:/code
     network_mode: "host"
