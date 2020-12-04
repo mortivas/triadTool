@@ -19,6 +19,7 @@ const typesDef = {
     CREATE_CONVERSATION_EVENT: "createConversationEvent",
     JOIN_CONVERSATION_EVENT: "joinConversationEvent",
     BAN_DECK_EVENT: "banDeckEvent",
+    CHOICE_DECK_EVENT: "choiceDeckEvent",
     USER_DISCONNECTED_EVENT: "userDisconnectedEvent",
     UPDATE_LOG_EVENT: "logUpdateEvent",
     ERROR_EVENT: "errorEvent",
@@ -35,8 +36,10 @@ class App extends Component {
             username: '',
             conversationId: '',
             bannedDeck: '',
+            chosenDeck: '',
             error: '',
             banSubmitted: false,
+            choiceSubmitted: false,
             isUsernameValid: true
         };
     }
@@ -79,6 +82,28 @@ class App extends Component {
             });
         }
     };
+
+    submitChoice = () => {
+        const userId = this.state.userId;
+        const conversationId = this.state.conversationId;
+        const chosenDeck = this.chosenDeckInput.value;
+        const data = {
+            userId,
+            conversationId,
+            chosenDeck,
+        };
+        if (chosenDeck.trim()) {
+            this.setState({
+                ...data
+            }, () => {
+                client.send(JSON.stringify({
+                    ...data,
+                    type: typesDef.CHOICE_DECK_EVENT,
+                }));
+            });
+        }
+    };
+
 
     createConversation = () => {
         const username = this.usernameInput.value;
@@ -147,6 +172,13 @@ class App extends Component {
 
                     break;
 
+                case typesDef.CHOICE_DECK_EVENT:
+                    stateToChange.choiceSubmitted = true;
+                    stateToChange.chosenDeck = dataFromServer.data.chosenDeck;
+                    stateToChange.error = '';
+
+                    break;
+
                 case typesDef.UPDATE_LOG_EVENT:
                     stateToChange.currentUsers = dataFromServer.data.users;
                     stateToChange.log = dataFromServer.data.log;
@@ -191,7 +223,6 @@ class App extends Component {
                             disabled={!this.state.username || !this.state.isUsernameValid}
                             className="btn btn-primary account__btn">Create Conversation
                     </button>
-                    <br></br>
                     <p className="button__desc">Or enter conversation ID received from your opponent here:</p>
                     <input name="conversation-id" ref={(input) => {
                         this.conversationIdInput = input;
@@ -252,6 +283,25 @@ class App extends Component {
                         <div className="ok-msg">
                             <p className="ok-text">Your decision accepted</p>
                         </div>)}
+
+                    <p className="button__desc">Enter deck name you want to play:</p>
+
+
+                    <input name="played-deck" ref={(input) => {
+                        this.chosenDeckInput = input;
+                    }}
+                           className="form-control"
+                           disabled={!this.state.banSubmitted || this.state.choiceSubmitted}
+                    />
+                    <button type="button" onClick={() => this.submitChoice()}
+                            disabled={!this.state.banSubmitted || this.state.choiceSubmitted}
+                            className="btn btn-primary account__btn">Submit your choice
+                    </button>
+                    {this.state.choiceSubmitted && (
+                        <div className="ok-msg">
+                            <p className="ok-text">Your decision accepted</p>
+                        </div>)}
+
                     {this.state.error && (
                         <div className="error-msg">
                             <p className="error-text">{this.state.error}</p>

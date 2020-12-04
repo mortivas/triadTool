@@ -80,11 +80,29 @@ const sendBans = (conversation) => {
     }
 };
 
+const sendChoices = (conversation) => {
+    if (conversation.users.length < 2) {
+        return;
+    }
+    const user1 = conversation.users[0];
+    const user2 = conversation.users[1];
+    const choice1 = conversation.choices[user1.userId];
+    const choice2 = conversation.choices[user2.userId];
+
+    if (choice1 && choice2) {
+        conversation.log.push(`${user1.username} choose ${choice1}`);
+        conversation.log.push(`${user2.username} choose ${choice2}`);
+        sendLogUpdate(conversation);
+    }
+};
+
+
 
 const typesDef = {
     CREATE_CONVERSATION_EVENT: "createConversationEvent",
     JOIN_CONVERSATION_EVENT: "joinConversationEvent",
     BAN_DECK_EVENT: "banDeckEvent",
+    CHOICE_DECK_EVENT: "choiceDeckEvent",
     USER_DISCONNECTED_EVENT: "userDisconnectedEvent",
     UPDATE_LOG_EVENT: "logUpdateEvent",
     ERROR_EVENT: "errorEvent",
@@ -105,6 +123,7 @@ wsServer.on('request', function (request) {
             const json = {type: dataFromClient.type};
             var conversationId = dataFromClient.conversationId;
             var user = users[dataFromClient.userId];
+            var id = dataFromClient.userId;
 
             console.log(JSON.stringify(dataFromClient, null, 2));
 
@@ -121,6 +140,7 @@ wsServer.on('request', function (request) {
                         log: [],
                         users: [],
                         bans: {},
+                        choices: {},
                     };
                     conversation = conversations[conversationId];
                     conversation.conversationId = conversationId;
@@ -157,14 +177,13 @@ wsServer.on('request', function (request) {
 
                     break;
                 case typesDef.BAN_DECK_EVENT:
-                    var id = dataFromClient.userId;
                     var bannedDeck = dataFromClient.bannedDeck;
 
                     user = users[id];
                     conversation = conversations[conversationId];
 
                     conversation.bans[id] = bannedDeck;
-                    conversation.log.push(`${user.username} made their choice`);
+                    conversation.log.push(`${user.username} made their strike`);
 
                     json.data = {
                         bannedDeck,
@@ -175,6 +194,25 @@ wsServer.on('request', function (request) {
                     sendLogUpdate(conversation);
                     sendBans(conversation);
                     break;
+                case typesDef.CHOICE_DECK_EVENT:
+                    var chosenDeck = dataFromClient.chosenDeck;
+
+                    user = users[id];
+                    conversation = conversations[conversationId];
+
+                    conversation.choices[id] = chosenDeck;
+                    conversation.log.push(`${user.username} made their choice`);
+
+                    json.data = {
+                        chosenDeck,
+                        conversation
+                    };
+
+                    sendMessage(conversation, JSON.stringify(json), userId);
+                    sendLogUpdate(conversation);
+                    sendChoices(conversation);
+                    break;
+
             }
         }
     });
