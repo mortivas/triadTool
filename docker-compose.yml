@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  srv:
+    hostname: server
+    build:
+      dockerfile: ./Dockerfile
+      context: ./server
+    restart: always
+    command: node index.js
+    volumes:
+      - ./:/code
+    network_mode: "host"
+
+
+  client:
+    hostname: client
+    build:
+      dockerfile: ./Dockerfile
+      context: ./client
+    command: serve -s build
+    restart: always
+    volumes:
+      - ./:/code
+    network_mode: "host"
