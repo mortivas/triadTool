@@ -136,12 +136,11 @@ wsServer.on('request', function (request) {
                     break;
                 case typesDef.JOIN_CONVERSATION_EVENT:
                     conversation = conversations[conversationId];
-                    console.log(conversation);
                     if (!conversation) {
                         return sendError(userId, "conversation not found");
                     }
 
-                    if (conversation.users.length > 2) {
+                    if (conversation.users.length >= 2) {
                         return sendError(userId, "two players already in conversation");
                     }
 
