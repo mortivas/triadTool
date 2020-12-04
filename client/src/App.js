@@ -117,7 +117,6 @@ class App extends Component {
             switch (dataFromServer.type) {
                 case typesDef.CREATE_CONVERSATION_EVENT:
                     stateToChange.currentUsers = dataFromServer.data.conversation.users;
-                    stateToChange.log = dataFromServer.data.conversation.log;
                     stateToChange.conversationId = dataFromServer.data.conversation.conversationId;
                     stateToChange.userId = dataFromServer.data.userId;
                     stateToChange.error = '';
@@ -125,7 +124,6 @@ class App extends Component {
 
                 case typesDef.JOIN_CONVERSATION_EVENT:
                     stateToChange.currentUsers = dataFromServer.data.conversation.users;
-                    stateToChange.log = dataFromServer.data.conversation.log;
                     stateToChange.conversationId = dataFromServer.data.conversation.conversationId;
                     stateToChange.userId = dataFromServer.data.userId;
                     stateToChange.error = '';

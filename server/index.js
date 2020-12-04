@@ -3,6 +3,7 @@ const webSocketServer = require('websocket').server;
 const http = require('http');
 // Spinning the http server and the websocket server.
 const server = http.createServer();
+console.log("server started");
 server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
     httpServer: server
@@ -128,7 +129,8 @@ wsServer.on('request', function (request) {
 
                     json.data = {userId, conversation};
 
-                    sendMessage(conversation, JSON.stringify(json));
+                    sendMessage(conversation, JSON.stringify(json), userId);
+                    sendLogUpdate(conversation);
 
                     break;
                 case typesDef.JOIN_CONVERSATION_EVENT:
@@ -150,7 +152,8 @@ wsServer.on('request', function (request) {
 
                     json.data = {userId, conversation};
 
-                    sendMessage(conversation, JSON.stringify(json));
+                    sendMessage(conversation, JSON.stringify(json), userId);
+                    sendLogUpdate(conversation);
 
                     break;
                 case typesDef.BAN_DECK_EVENT:
