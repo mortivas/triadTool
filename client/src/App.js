@@ -45,7 +45,12 @@ class App extends Component {
 
     back = () => {
         this.setState({
-            conversationId: ''
+            currentUsers: [],
+            log: [],
+            conversationId: '',
+            bannedDeck: '',
+            error: '',
+            banSubmitted: false,
         });
     };
 
