@@ -11,6 +11,7 @@ import 'medium-editor/dist/css/themes/default.css';
 import './App.css';
 
 const client = new W3CWebSocket('ws://127.0.0.1:8000');
+const expression = new RegExp("^[a-zA-Z][a-zA-Z0-9]*");
 
 const typesDef = {
     CREATE_CONVERSATION_EVENT: "createConversationEvent",
@@ -34,6 +35,7 @@ class App extends Component {
             bannedDeck: '',
             error: '',
             banSubmitted: false,
+            isUsernameValid: false
         };
     }
 
@@ -41,6 +43,7 @@ class App extends Component {
         this.setState({
             username: e.target.value
         })
+        this.state.isUsernameValid = expression.test(e.target.value);
     };
 
     back = () => {
@@ -171,7 +174,8 @@ class App extends Component {
                         <p className="account__name">Hello, KeyForge Player!</p>
                         <p className="account__sub">This is a tool to simultaneously reveal your bans for triad
                             games</p>
-                        <p className="account__sub">Username:</p>
+                        <p className="account__sub">Username: </p>
+                        <p className="account__sub">(should start from letter and contain only letters and numbers)</p>
                     </div>
                     <input name="username" ref={(input) => {
                         this.usernameInput = input;
@@ -181,7 +185,7 @@ class App extends Component {
                        className="form-control"/>
                     <p className="button__desc">If you want to create new conversation, just press this button:</p>
                     <button type="button" onClick={() => this.createConversation()}
-                            disabled={!this.state.username}
+                            disabled={!this.state.username || !this.state.isUsernameValid}
                             className="btn btn-primary account__btn">Create Conversation
                     </button>
                     <br></br>
@@ -189,10 +193,10 @@ class App extends Component {
                     <input name="conversation-id" ref={(input) => {
                         this.conversationIdInput = input;
                     }}
-                           disabled={!this.state.username}
+                           disabled={!this.state.username || !this.state.isUsernameValid}
                            className="form-control"/>
                     <button type="button" onClick={() => this.joinConversation()}
-                            disabled={!this.state.username}
+                            disabled={!this.state.username || !this.state.isUsernameValid}
                             className="btn btn-primary account__btn">Join Conversation
                     </button>
                     {this.state.error && (
