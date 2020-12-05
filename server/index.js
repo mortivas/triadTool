@@ -29,20 +29,22 @@ const sendMessage = (conversation, json, userId) => {
 
     if (!conversation) return;
 
-    if (userId) {
+    if (userId && clients[userId]) {
         clients[userId].sendUTF(json);
 
     } else {
         conversation.users.forEach((user) => {
-            clients[user.userId].sendUTF(json);
+            if (clients[user.userId])
+                clients[user.userId].sendUTF(json);
         })
     }
 };
 
 const sendLogUpdate = (conversation) => {
-        if (!conversation) return;
+    if (!conversation) return;
 
-        conversation.users.forEach((user) => {
+    conversation.users.forEach((user) => {
+        if (clients[user.userId]) {
             clients[user.userId].sendUTF(JSON.stringify({
                 type: typesDef.UPDATE_LOG_EVENT,
                 data: {
@@ -50,18 +52,21 @@ const sendLogUpdate = (conversation) => {
                     log: conversation.log
                 }
             }));
-        })
-    };
+        }
+    })
+};
 
 const sendError = (userId, message) => {
-    clients[userId].sendUTF(
-        (JSON.stringify({
-            type: typesDef.ERROR_EVENT,
-            data: {
-                message
-            }
-        }))
-    )
+    if (clients[userId]) {
+        clients[userId].sendUTF(
+            (JSON.stringify({
+                type: typesDef.ERROR_EVENT,
+                data: {
+                    message
+                }
+            }))
+        )
+    }
 };
 
 const sendBans = (conversation) => {
@@ -95,7 +100,6 @@ const sendChoices = (conversation) => {
         sendLogUpdate(conversation);
     }
 };
-
 
 
 const typesDef = {
