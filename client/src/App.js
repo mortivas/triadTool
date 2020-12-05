@@ -59,6 +59,7 @@ class App extends Component {
             bannedDeck: '',
             error: '',
             banSubmitted: false,
+            choiceSubmitted: false,
         });
     };
 
