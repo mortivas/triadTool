@@ -40,7 +40,8 @@ class App extends Component {
             error: '',
             banSubmitted: false,
             choiceSubmitted: false,
-            isUsernameValid: true
+            isUsernameValid: true,
+            gameType: 'strike'
         };
     }
 
@@ -50,6 +51,13 @@ class App extends Component {
         });
         this.state.isUsernameValid = expression.test(e.target.value);
     };
+
+    updateGameType = (e) => {
+        console.log(e.target.value);
+        this.setState({
+           gameType: e.target.value
+        });
+    }
 
     back = () => {
         this.setState({
@@ -111,6 +119,7 @@ class App extends Component {
         if (username.trim()) {
             const data = {
                 username,
+                gameType: this.state.gameType,
             };
             this.setState({
                 ...data
@@ -163,7 +172,7 @@ class App extends Component {
                     stateToChange.conversationId = dataFromServer.data.conversation.conversationId;
                     stateToChange.userId = dataFromServer.data.userId;
                     stateToChange.error = '';
-
+                    stateToChange.gameType = dataFromServer.data.gameType;
                     break;
 
                 case typesDef.BAN_DECK_EVENT:
@@ -208,7 +217,17 @@ class App extends Component {
                         <Identicon className="account__avatar" size={64} string="randomness"/>
                         <p className="account__name">Hello, KeyForge Player!</p>
                         <p className="account__sub">This is a tool to simultaneously reveal your bans for triad
-                            games</p>
+                            games or to simultaneously choose decks</p>
+
+                        <div className="radio-toolbar" onChange={this.updateGameType}>
+                            <input id="game-type-strike" type="radio" name="game-type" value="strike" defaultChecked/>
+                                <label htmlFor="game-type-strike">Strike & Choose</label>
+
+                            <input id="game-type-choose" type="radio" name="game-type" value="choose" />
+                                <label htmlFor="game-type-choose">Choose</label>
+                        </div>
+
+
                         <p className="account__sub">Username: </p>
                         <p className="account__sub">(should start from letter and contain only letters and numbers)</p>
                     </div>
@@ -244,6 +263,47 @@ class App extends Component {
         </div>
     )
 
+    showBan = () => (
+        <div>
+            <p className="button__desc">Enter deck name you want to ban:</p>
+            <input name="banned-deck" ref={(input) => {
+                this.bannedDeckInput = input;
+            }}
+                   className="form-control"
+                   disabled={this.state.banSubmitted}
+            />
+            <button type="button" onClick={() => this.submitBan()}
+                    disabled={this.state.banSubmitted}
+                    className="btn btn-primary account__btn">Submit your ban
+            </button>
+            {this.state.banSubmitted && (
+                <div className="ok-msg">
+                    <p className="ok-text">Your decision accepted</p>
+                </div>)}
+        </div>
+    );
+
+    showChoose = () => (
+        <div>
+        <p className="button__desc">Enter deck name you want to play:</p>
+
+        <input name="played-deck" ref={(input) => {
+            this.chosenDeckInput = input;
+        }}
+        className="form-control"
+        disabled={(!this.state.banSubmitted && this.gameType === 'strike') || this.state.choiceSubmitted}
+        />
+        <button type="button" onClick={() => this.submitChoice()}
+                disabled={(!this.state.banSubmitted  && this.gameType === 'strike') || this.state.choiceSubmitted}
+                className="btn btn-primary account__btn">Submit your choice
+        </button>
+        {this.state.choiceSubmitted && (
+            <div className="ok-msg">
+                <p className="ok-text">Your decision accepted</p>
+            </div>)}
+        </div>
+    );
+
     showBanSection = () => (
         <div className="account">
             <div className="account__wrapper">
@@ -269,39 +329,10 @@ class App extends Component {
                             </React.Fragment>
                         </div>
                     </div>
-                    <p className="button__desc">Enter deck name you want to ban:</p>
-                    <input name="banned-deck" ref={(input) => {
-                        this.bannedDeckInput = input;
-                    }}
-                           className="form-control"
-                           disabled={this.state.banSubmitted}
-                    />
-                    <button type="button" onClick={() => this.submitBan()}
-                            disabled={this.state.banSubmitted}
-                            className="btn btn-primary account__btn">Submit your ban
-                    </button>
-                    {this.state.banSubmitted && (
-                        <div className="ok-msg">
-                            <p className="ok-text">Your decision accepted</p>
-                        </div>)}
 
-                    <p className="button__desc">Enter deck name you want to play:</p>
+                    {this.state.gameType === 'strike' && this.showBan() }
 
-
-                    <input name="played-deck" ref={(input) => {
-                        this.chosenDeckInput = input;
-                    }}
-                           className="form-control"
-                           disabled={!this.state.banSubmitted || this.state.choiceSubmitted}
-                    />
-                    <button type="button" onClick={() => this.submitChoice()}
-                            disabled={!this.state.banSubmitted || this.state.choiceSubmitted}
-                            className="btn btn-primary account__btn">Submit your choice
-                    </button>
-                    {this.state.choiceSubmitted && (
-                        <div className="ok-msg">
-                            <p className="ok-text">Your decision accepted</p>
-                        </div>)}
+                    {this.showChoose()}
 
                     {this.state.error && (
                         <div className="error-msg">

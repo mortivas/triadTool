@@ -151,7 +151,7 @@ wsServer.on('request', function (request) {
                     conversation.users.push(user);
                     conversation.log.push(`${dataFromClient.username} joined conversation`);
                     conversation.log.push(`Conversation ID: ${conversationId}. Send it to your opponent`);
-
+                    conversation.gameType = dataFromClient.gameType;
                     json.data = {userId, conversation};
 
                     sendMessage(conversation, JSON.stringify(json), userId);
@@ -174,7 +174,7 @@ wsServer.on('request', function (request) {
                     conversation.users.push(user);
                     conversation.log.push(`${dataFromClient.username} joined conversation`);
 
-                    json.data = {userId, conversation};
+                    json.data = {userId, conversation, gameType: conversation.gameType};
 
                     sendMessage(conversation, JSON.stringify(json), userId);
                     sendLogUpdate(conversation);
