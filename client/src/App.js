@@ -37,6 +37,7 @@ class App extends Component {
             conversationId: '',
             bannedDeck: '',
             chosenDeck: '',
+            chosenSecondDeck: '',
             error: '',
             banSubmitted: false,
             choiceSubmitted: false,
@@ -55,7 +56,7 @@ class App extends Component {
     updateGameType = (e) => {
         console.log(e.target.value);
         this.setState({
-           gameType: e.target.value
+            gameType: e.target.value
         });
     }
 
@@ -96,10 +97,12 @@ class App extends Component {
         const userId = this.state.userId;
         const conversationId = this.state.conversationId;
         const chosenDeck = this.chosenDeckInput.value;
+        const chosenSecondDeck = this.chosenSecondDeckInput.value;
         const data = {
             userId,
             conversationId,
             chosenDeck,
+            chosenSecondDeck,
         };
         if (chosenDeck.trim()) {
             this.setState({
@@ -185,8 +188,8 @@ class App extends Component {
                 case typesDef.CHOICE_DECK_EVENT:
                     stateToChange.choiceSubmitted = true;
                     stateToChange.chosenDeck = dataFromServer.data.chosenDeck;
+                    stateToChange.chosenSecondDeck = dataFromServer.data.chosenSecondDeck;
                     stateToChange.error = '';
-
                     break;
 
                 case typesDef.UPDATE_LOG_EVENT:
@@ -221,10 +224,13 @@ class App extends Component {
 
                         <div className="radio-toolbar" onChange={this.updateGameType}>
                             <input id="game-type-strike" type="radio" name="game-type" value="strike" defaultChecked/>
-                                <label htmlFor="game-type-strike">Strike & Choose</label>
+                            <label htmlFor="game-type-strike">Strike & Choose</label>
 
-                            <input id="game-type-choose" type="radio" name="game-type" value="choose" />
-                                <label htmlFor="game-type-choose">Choose</label>
+                            <input id="game-type-choose" type="radio" name="game-type" value="choose"/>
+                            <label htmlFor="game-type-choose">Choose</label>
+
+                            <input id="game-type-kfpl-3" type="radio" name="game-type" value="kfpl3"/>
+                            <label htmlFor="game-type-kfpl-3">KFPL3</label>
                         </div>
 
 
@@ -234,9 +240,9 @@ class App extends Component {
                     <input name="username" ref={(input) => {
                         this.usernameInput = input;
                     }}
-                       value={this.state.username}
-                       onChange={this.handleUsernameChange}
-                       className={this.state.isUsernameValid ? "form-control" : "form-control error-input"}
+                           value={this.state.username}
+                           onChange={this.handleUsernameChange}
+                           className={this.state.isUsernameValid ? "form-control" : "form-control error-input"}
                     />
                     <p className="button__desc">If you want to create new conversation, just press this button:</p>
                     <button type="button" onClick={() => this.createConversation()}
@@ -283,24 +289,44 @@ class App extends Component {
         </div>
     );
 
-    showChoose = () => (
+    showChoose = (kfpl = false) => (
         <div>
-        <p className="button__desc">Enter deck name you want to play:</p>
+            <p className="button__desc">Enter deck name you want to play:</p>
+            <input name="played-deck" ref={(input) => {
+                this.chosenDeckInput = input;
+            }}
+                   className="form-control"
+                   disabled={(!this.state.banSubmitted && this.gameType === 'strike') || this.state.choiceSubmitted}
+            />
 
-        <input name="played-deck" ref={(input) => {
-            this.chosenDeckInput = input;
-        }}
-        className="form-control"
-        disabled={(!this.state.banSubmitted && this.gameType === 'strike') || this.state.choiceSubmitted}
-        />
-        <button type="button" onClick={() => this.submitChoice()}
-                disabled={(!this.state.banSubmitted  && this.gameType === 'strike') || this.state.choiceSubmitted}
-                className="btn btn-primary account__btn">Submit your choice
-        </button>
-        {this.state.choiceSubmitted && (
-            <div className="ok-msg">
-                <p className="ok-text">Your decision accepted</p>
-            </div>)}
+            {!kfpl && this.showSubmitButton()}
+
+        </div>
+    );
+
+    showSubmitButton = () => (
+        <div>
+            <button type="button" onClick={() => this.submitChoice()}
+                    disabled={(!this.state.banSubmitted && this.gameType === 'strike') || this.state.choiceSubmitted}
+                    className="btn btn-primary account__btn">Submit your choice
+            </button>
+            {this.state.choiceSubmitted && (
+                <div className="ok-msg">
+                    <p className="ok-text">Your decision accepted</p>
+                </div>)}
+        </div>
+    )
+
+    showSecondChoose = () => (
+        <div>
+            <p className="button__desc">Enter second deck name you want to play:</p>
+            <input name="played-deck-2" ref={(input) => {
+                this.chosenSecondDeckInput = input;
+            }}
+                   className="form-control"
+                   disabled={this.state.choiceSubmitted}
+            />
+            {this.showSubmitButton()}
         </div>
     );
 
@@ -330,9 +356,11 @@ class App extends Component {
                         </div>
                     </div>
 
-                    {this.state.gameType === 'strike' && this.showBan() }
+                    {this.state.gameType === 'strike' && this.showBan()}
 
-                    {this.showChoose()}
+                    {this.showChoose(this.state.gameType === 'kfpl3')}
+
+                    {this.state.gameType === 'kfpl3' && this.showSecondChoose()}
 
                     {this.state.error && (
                         <div className="error-msg">

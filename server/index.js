@@ -200,15 +200,21 @@ wsServer.on('request', function (request) {
                     break;
                 case typesDef.CHOICE_DECK_EVENT:
                     var chosenDeck = dataFromClient.chosenDeck;
+                    var chosenSecondDeck = dataFromClient.chosenSecondDeck;
 
                     user = users[id];
                     conversation = conversations[conversationId];
-
-                    conversation.choices[id] = chosenDeck;
+                    if (chosenSecondDeck) {
+                        conversation.choices[id] = `first deck: ${chosenDeck}\n second deck: ${chosenSecondDeck}`;
+                    }
+                    else {
+                        conversation.choices[id] = chosenDeck;
+                    }
                     conversation.log.push(`${user.username} made their choice`);
 
                     json.data = {
                         chosenDeck,
+                        chosenSecondDeck,
                         conversation
                     };
 
