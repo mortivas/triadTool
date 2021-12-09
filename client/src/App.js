@@ -221,7 +221,7 @@ class App extends Component {
 
                         <div className="radio-toolbar" onChange={this.updateGameType}>
                             <input id="game-type-strike" type="radio" name="game-type" value="strike" defaultChecked/>
-                                <label htmlFor="game-type-strike">Strike & Choose</label>
+                                <label htmlFor="game-type-strike">Ban & Choose</label>
 
                             <input id="game-type-choose" type="radio" name="game-type" value="choose" />
                                 <label htmlFor="game-type-choose">Choose</label>
