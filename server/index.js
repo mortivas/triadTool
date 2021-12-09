@@ -187,7 +187,7 @@ wsServer.on('request', function (request) {
                     conversation = conversations[conversationId];
 
                     conversation.bans[id] = bannedDeck;
-                    conversation.log.push(`${user.username} made their strike`);
+                    conversation.log.push(`${user.username} made their ban`);
 
                     json.data = {
                         bannedDeck,
