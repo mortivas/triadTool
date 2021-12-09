@@ -95,8 +95,8 @@ const sendChoices = (conversation) => {
     const choice2 = conversation.choices[user2.userId];
 
     if (choice1 && choice2) {
-        conversation.log.push(`${user1.username} choose ${choice1}`);
-        conversation.log.push(`${user2.username} choose ${choice2}`);
+        conversation.log.push(`${user1.username} chooses ${choice1}`);
+        conversation.log.push(`${user2.username} chooses ${choice2}`);
         sendLogUpdate(conversation);
     }
 };
@@ -200,21 +200,15 @@ wsServer.on('request', function (request) {
                     break;
                 case typesDef.CHOICE_DECK_EVENT:
                     var chosenDeck = dataFromClient.chosenDeck;
-                    var chosenSecondDeck = dataFromClient.chosenSecondDeck;
 
                     user = users[id];
                     conversation = conversations[conversationId];
-                    if (chosenSecondDeck) {
-                        conversation.choices[id] = `first deck: ${chosenDeck}\n second deck: ${chosenSecondDeck}`;
-                    }
-                    else {
-                        conversation.choices[id] = chosenDeck;
-                    }
+
+                    conversation.choices[id] = chosenDeck;
                     conversation.log.push(`${user.username} made their choice`);
 
                     json.data = {
                         chosenDeck,
-                        chosenSecondDeck,
                         conversation
                     };
 
